@@ -5,7 +5,6 @@ import { Logger } from "../../config/logger.js";
 import { ApiResponse } from "../../models/api-response.model.js";
 import { HttpStatus } from "../../enum/http.status.js";
 import { PaymentModel } from "../../models/payment.model.js";
-import { PaymentService } from "../services/payment.service.js";
 import {
   CreatePreferenceDTO,
   IWebhookPayload,
@@ -14,6 +13,7 @@ import {
   UpdatePaymentDTO,
 } from "interfaces/payment.interface.js";
 import { randomUUID } from "crypto";
+import { PaymentService } from '../payment.service.js';
 
 const { MP_ACCESS_TOKEN, FRONT_URL, BASE_URL } = process.env as Record<string, string>;
 
