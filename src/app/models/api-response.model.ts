@@ -1,4 +1,4 @@
-import { HttpStatus } from '../enum/http.status';
+import { HttpStatus } from '../enum/http.status.js';
 
 export class ApiResponse<T = unknown> {
   code: number;
