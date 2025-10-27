@@ -1,0 +1,6 @@
+dist/
+node_modules/
+src/app/logs
+src/app/data
+.env
+package-lock.json
