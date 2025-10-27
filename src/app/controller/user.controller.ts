@@ -3,7 +3,7 @@ import { matchedData } from "express-validator";
 import { ApiResponse } from "../models/api-response.model.js";
 import { Logger } from "../config/logger.js";
 import type { UserService } from "../services/user.service.js";
-import { UserRole } from "@models/role.model.js";
+import { UserRole } from "../models/role.model.js";
 import { AuthUser } from "../interfaces/user.interface.js";
 import { HttpStatus } from "../enum/http.status.js";
 

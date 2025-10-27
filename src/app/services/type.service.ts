@@ -1,4 +1,4 @@
-import { ApiResponse } from "@models/api-response.model";
+import { ApiResponse } from "../models/api-response.model";
 import { CreateTypeDTO, SafeType, UpdateTypeDTO } from "../types/type.type";
 
 export interface TypeService {

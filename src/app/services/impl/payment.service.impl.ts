@@ -5,7 +5,7 @@ import { Logger } from "../../config/logger.js";
 import { ApiResponse } from "../../models/api-response.model.js";
 import { HttpStatus } from "../../enum/http.status.js";
 import { PaymentModel } from "../../models/payment.model.js";
-import { PaymentService } from "@services/payment.service.js";
+import { PaymentService } from "../services/payment.service.js";
 import {
   CreatePreferenceDTO,
   IWebhookPayload,

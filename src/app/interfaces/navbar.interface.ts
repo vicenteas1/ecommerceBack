@@ -1,4 +1,4 @@
-import type { UserRole } from "@models/role.model.js";
+import type { UserRole } from "../models/role.model.js";
 
 export type NavbarRole = "guest" | UserRole;
 
