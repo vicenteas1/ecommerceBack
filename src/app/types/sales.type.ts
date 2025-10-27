@@ -1,5 +1,5 @@
-import { PaymentStatus } from "../enum/payment.status";
-import { SaleStatus } from "../enum/sales.status";
+import { PaymentStatus } from '../enum/payment.status.js';
+import { SaleStatus } from '../enum/sales.status.js';
 
 export type SafeSaleItem = {
   itemId: string;

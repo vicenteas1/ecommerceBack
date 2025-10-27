@@ -1,10 +1,10 @@
-import { Router } from "express";
-import { body, param } from "express-validator";
-import { TypeController } from "../controller/types.controller.js";
-import { TypeServiceImpl } from "../services/impl/type.service.impl.js";
-import { validateToken } from "../middleware/authorization.js";
-import { requireAdmin } from "../middleware/checkRole.js";
-import { validate } from "../middleware/validation.js";
+import { Router } from 'express';
+import { body, param } from 'express-validator';
+import { TypeController } from '../controller/types.controller.js';
+import { TypeServiceImpl } from '../services/impl/type.service.impl.js';
+import { validateToken } from '../middleware/authorization.js';
+import { requireAdmin } from '../middleware/checkRole.js';
+import { validate } from '../middleware/validation.js';
 
 const router = Router();
 const controller = new TypeController(new TypeServiceImpl());

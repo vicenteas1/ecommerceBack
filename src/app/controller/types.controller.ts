@@ -1,7 +1,6 @@
-// src/app/controller/type.controller.ts
-import { Request, Response } from "express";
-import { Logger } from "../config/logger.js";
-import { TypeService } from "../services/type.service.js";
+import { Request, Response } from 'express';
+import { Logger } from '../config/logger.js';
+import { TypeService } from '../services/type.service.js';
 
 type AuthUser = { id: string; role?: string };
 

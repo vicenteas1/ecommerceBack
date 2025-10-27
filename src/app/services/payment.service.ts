@@ -1,4 +1,4 @@
-import { CreatePreferenceDTO, IWebhookPayload, IWebhookQuery, ListPaymentsFilter, UpdatePaymentDTO } from "interfaces/payment.interface";
+import { CreatePreferenceDTO, IWebhookPayload, IWebhookQuery, ListPaymentsFilter, UpdatePaymentDTO } from '../interfaces/payment.interface.js';
 
 export interface PaymentService {
   createPreference(data: CreatePreferenceDTO): Promise<any>;

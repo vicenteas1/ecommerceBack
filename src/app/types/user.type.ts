@@ -1,6 +1,6 @@
-import { UserRole } from "../models/role.model";
-import { UserClass } from "../models/user.model";
-import { AuthUser } from "../interfaces/user.interface";
+import { UserRole } from '../models/role.model.js';
+import { UserClass } from '../models/user.model.js';
+import { AuthUser } from '../interfaces/user.interface.js';
 
 export type SafeUser = Pick<
   UserClass,

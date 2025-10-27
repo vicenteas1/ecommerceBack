@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from "express";
-import { matchedData } from "express-validator";
-import { ApiResponse } from "../models/api-response.model.js";
+import { Request, Response, NextFunction } from 'express';
+import { matchedData } from 'express-validator';
+import { ApiResponse } from '../models/api-response.model.js';
 import type {
   SaleService,
-} from "../services/sales.service.js";
-import { SaleStatus } from "../enum/sales.status.js";
+} from '../services/sales.service.js';
+import { SaleStatus } from '../enum/sales.status.js';
 
 export class SaleController {
   constructor(private readonly service: SaleService) {}

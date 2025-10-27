@@ -1,5 +1,5 @@
-import { PaymentProvider } from "../enum/payment.provider";
-import { PaymentStatus } from "../enum/payment.status";
+import { PaymentProvider } from '../enum/payment.provider.js';
+import { PaymentStatus } from '../enum/payment.status.js';
 
 export type SafePurchaseItem = {
   itemId: string;

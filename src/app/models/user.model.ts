@@ -1,6 +1,6 @@
-import { Schema, model, Document } from "mongoose";
-import bcrypt from "bcryptjs";
-import { ROLES, RoleClass, type UserRole } from "./role.model.js";
+import { Schema, model, Document } from 'mongoose';
+import bcrypt from 'bcryptjs';
+import { ROLES, RoleClass, type UserRole } from './role.model.js';
 
 export class UserClass extends Document {
   username!: string;

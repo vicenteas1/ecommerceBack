@@ -1,5 +1,5 @@
-import { ICategory } from "../interfaces/category.interface";
-import { Types } from "mongoose";
+import { ICategory } from '../interfaces/category.interface';
+import { Types } from 'mongoose';
 
 export interface ICategoryService {
   create(data: Partial<ICategory>): Promise<any>;

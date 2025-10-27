@@ -1,6 +1,6 @@
-import { SaleStatus } from 'enum/sales.status';
-import { ApiResponse } from '../models/api-response.model';
-import { ListSalesQuery, MetricsOverview, MetricsOverviewParams, MetricsTimeSeriesParams, MetricsTimeSeriesPoint, MySalesQuery, Paged, SafeSale } from '../types/sales.type';
+import { SaleStatus } from '../enum/sales.status.js';
+import { ApiResponse } from '../models/api-response.model.js';
+import { ListSalesQuery, MetricsOverview, MetricsOverviewParams, MetricsTimeSeriesParams, MetricsTimeSeriesPoint, MySalesQuery, Paged, SafeSale } from '../types/sales.type.js';
 
 
 export interface SaleService {

@@ -8,8 +8,6 @@ import { SaleStatus } from '../../enum/sales.status.js';
 import { PaymentStatus } from '../../enum/payment.status.js';
 
 export class SaleServiceImpl implements SaleService {
-  /* =============================== BUYER =============================== */
-
   async listMySales(userId: string, query?: MySalesQuery): Promise<ApiResponse<Paged<SafeSale>>> {
     try {
       if (!Types.ObjectId.isValid(userId)) return ApiResponse.fail('userId inválido', 400);
@@ -47,8 +45,6 @@ export class SaleServiceImpl implements SaleService {
       return ApiResponse.fail(err?.message ?? 'NOK', 500);
     }
   }
-
-  /* =============================== ADMIN =============================== */
 
   async listSales(query?: ListSalesQuery): Promise<ApiResponse<Paged<SafeSale>>> {
     try {
@@ -108,8 +104,6 @@ export class SaleServiceImpl implements SaleService {
       return ApiResponse.fail('No se pudo actualizar el estado', 500);
     }
   }
-
-  /* =============================== MÉTRICAS =============================== */
 
   async metricsOverview(params?: MetricsOverviewParams): Promise<ApiResponse<MetricsOverview>> {
     try {
@@ -204,8 +198,6 @@ export class SaleServiceImpl implements SaleService {
       return ApiResponse.fail('No se pudo obtener la serie temporal', 500) as unknown as ApiResponse<MetricsTimeSeriesPoint[]>;
     }
   }
-
-  /* =============================== HELPERS =============================== */
 
   private toSafe(s: SaleClass): SafeSale {
     const items: SafeSaleItem[] = (s as any).items?.map((it: any) => ({

@@ -1,10 +1,10 @@
-import { Router } from "express";
-import { body, param } from "express-validator";
-import { validate } from "../middleware/validation.js";
-import { validateToken } from "../middleware/authorization.js";
-import { requireAdmin, requireSelfOrAdmin } from "../middleware/checkRole.js";
-import { UserController } from "../controller/user.controller.js";
-import { UserServiceImpl } from "../services/impl/user.service.impl.js";
+import { Router } from 'express';
+import { body, param } from 'express-validator';
+import { validate } from '../middleware/validation.js';
+import { validateToken } from '../middleware/authorization.js';
+import { requireAdmin, requireSelfOrAdmin } from '../middleware/checkRole.js';
+import { UserController } from '../controller/user.controller.js';
+import { UserServiceImpl } from '../services/impl/user.service.impl.js';
 
 const router = Router();
 

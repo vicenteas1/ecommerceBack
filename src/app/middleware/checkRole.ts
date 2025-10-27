@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { UserRole } from "../models/role.model.js";
-import { HttpStatus } from "enum/http.status.js";
-import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from 'express';
+import { UserRole } from '../models/role.model.js';
+import { HttpStatus } from '../enum/http.status.js';
+import jwt from 'jsonwebtoken';
 
 export const requireRole =
   (...allowed: UserRole[]) =>

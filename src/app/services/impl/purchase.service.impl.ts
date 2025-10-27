@@ -12,7 +12,7 @@ import { PaymentStatus } from '../../enum/payment.status.js';
 import { Logger } from '../../config/logger.js';
 import { CreatePurchaseDTO } from '../../types/purchase.type.js';
 import { PurchaseService } from '../purchase.service.js';
-import { HttpStatus } from 'enum/http.status.js';
+import { HttpStatus } from '../../enum/http.status.js';
 
 export class PurchaseServiceImpl implements PurchaseService {
   async listMyPurchases(userId: string, query?: MyPurchasesQuery): Promise<ApiResponse<Paged<SafePurchase>>> {

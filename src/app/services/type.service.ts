@@ -1,5 +1,5 @@
-import { ApiResponse } from "../models/api-response.model";
-import { CreateTypeDTO, SafeType, UpdateTypeDTO } from "../types/type.type";
+import { ApiResponse } from '../models/api-response.model.js';
+import { CreateTypeDTO, SafeType, UpdateTypeDTO } from '../types/type.type.js';
 
 export interface TypeService {
   create(data: CreateTypeDTO): Promise<ApiResponse<SafeType | null>>;

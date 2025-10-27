@@ -1,10 +1,10 @@
-import { ICategoryService, ICategory } from "../../interfaces/category.interface.js";
-import { CategoryModel } from "../../models/category.model.js";
-import { TypeModel } from "../../models/type.model.js";
-import { Logger } from "../../config/logger.js";
-import { ApiResponse } from "../../models/api-response.model.js";
-import { HttpStatus } from "../../enum/http.status.js";
-import { Types } from "mongoose";
+import { ICategoryService, ICategory } from '../../interfaces/category.interface.js';
+import { CategoryModel } from '../../models/category.model.js';
+import { TypeModel } from '../../models/type.model.js';
+import { Logger } from '../../config/logger.js';
+import { ApiResponse } from '../../models/api-response.model.js';
+import { HttpStatus } from '../../enum/http.status.js';
+import { Types } from 'mongoose';
 
 const slugify = (v: string) =>
   v.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-");

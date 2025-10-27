@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { Logger } from "../config/logger.js";
-import { CategoryService } from "../services/impl/category.service.impl.js";
+import { Request, Response } from 'express';
+import { Logger } from '../config/logger.js';
+import { CategoryService } from '../services/impl/category.service.impl.js';
 
 export class CategoryController {
     constructor(private service: CategoryService) { }

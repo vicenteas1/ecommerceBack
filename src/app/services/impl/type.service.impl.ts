@@ -1,11 +1,10 @@
-import { Types } from "mongoose";
-import { Logger } from "../../config/logger.js";
-import { ApiResponse } from "../../models/api-response.model.js";
-import { HttpStatus } from "../../enum/http.status.js";
-import { TypeModel, TypeClass } from "../../models/type.model.js";
-
-import { TypeService } from "../../services/type.service.js";
-import {   SafeType, CreateTypeDTO, UpdateTypeDTO } from "../../types/type.type.js";
+import { Types } from 'mongoose';
+import { Logger } from '../../config/logger.js';
+import { ApiResponse } from '../../models/api-response.model.js';
+import { HttpStatus } from '../../enum/http.status.js';
+import { TypeModel, TypeClass } from '../../models/type.model.js';
+import { TypeService } from '../../services/type.service.js';
+import {   SafeType, CreateTypeDTO, UpdateTypeDTO } from '../../types/type.type.js';
 
 const norm = (v?: string) =>
   (v ?? "").trim().toLowerCase();

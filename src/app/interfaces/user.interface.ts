@@ -1,4 +1,4 @@
-import { UserRole } from "../models/role.model";
+import { UserRole } from '../models/role.model';
 
 export interface AuthUser {
   username: string;

@@ -1,4 +1,4 @@
-import { NavItem } from "../interfaces/navbar.interface";
+import { NavItem } from '../interfaces/navbar.interface.js';
 
 export const BASE_MENU: NavItem[] = [
   {

@@ -1,12 +1,12 @@
-import { Router } from "express";
-import { body, param, query } from "express-validator";
-import { validateToken } from "../middleware/authorization.js";
-import { requireAdmin, requireBuyer } from "../middleware/checkRole.js";
-import { validate } from "../middleware/validation.js";
-import { SaleController } from "../controller/sales.controller.js";
-import { SaleServiceImpl } from "../services/impl/sales.service.impl.js";
-import { SaleStatus } from "../enum/sales.status.js";
-import { PaymentStatus } from "../enum/payment.status.js";
+import { Router } from 'express';
+import { body, param, query } from 'express-validator';
+import { validateToken } from '../middleware/authorization.js';
+import { requireAdmin, requireBuyer } from '../middleware/checkRole.js';
+import { validate } from '../middleware/validation.js';
+import { SaleController } from '../controller/sales.controller.js';
+import { SaleServiceImpl } from '../services/impl/sales.service.impl.js';
+import { SaleStatus } from '../enum/sales.status.js';
+import { PaymentStatus } from '../enum/payment.status.js';
 
 const router = Router();
 

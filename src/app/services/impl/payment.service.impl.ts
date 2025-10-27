@@ -1,18 +1,18 @@
 import 'dotenv/config';
-import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
-import { Types } from "mongoose";
-import { Logger } from "../../config/logger.js";
-import { ApiResponse } from "../../models/api-response.model.js";
-import { HttpStatus } from "../../enum/http.status.js";
-import { PaymentModel } from "../../models/payment.model.js";
+import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
+import { Types } from 'mongoose';
+import { Logger } from '../../config/logger.js';
+import { ApiResponse } from '../../models/api-response.model.js';
+import { HttpStatus } from '../../enum/http.status.js';
+import { PaymentModel } from '../../models/payment.model.js';
 import {
   CreatePreferenceDTO,
   IWebhookPayload,
   IWebhookQuery,
   ListPaymentsFilter,
   UpdatePaymentDTO,
-} from "interfaces/payment.interface.js";
-import { randomUUID } from "crypto";
+} from '../../interfaces/payment.interface.js';
+import { randomUUID } from 'crypto';
 import { PaymentService } from '../payment.service.js';
 
 const { MP_ACCESS_TOKEN, FRONT_URL, BASE_URL } = process.env as Record<string, string>;

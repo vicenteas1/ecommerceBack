@@ -1,6 +1,6 @@
-import { Schema, model, Document, Types } from "mongoose";
-import { PaymentStatus } from "../enum/payment.status.js";
-import { PaymentProvider } from "../enum/payment.provider.js";
+import { Schema, model, Document, Types } from 'mongoose';
+import { PaymentStatus } from '../enum/payment.status.js';
+import { PaymentProvider } from '../enum/payment.provider.js';
 
 export class PurchaseClass extends Document {
   userId!: Types.ObjectId;

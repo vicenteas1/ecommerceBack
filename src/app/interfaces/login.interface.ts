@@ -1,4 +1,4 @@
-import { SafeUser } from "types/user.type";
+import { SafeUser } from '../types/user.type';
 
 export interface LoginResult {
   user: SafeUser;

@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { ApiResponse } from "../models/api-response.model.js";
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { ApiResponse } from '../models/api-response.model.js';
 
 export function validateToken(req: Request, res: Response, next: NextFunction) {
   const auth = req.headers.authorization;

@@ -1,7 +1,7 @@
-import { SaleStatus } from "../enum/sales.status.js";
-import { PaymentStatus } from "../enum/payment.status.js";
-import { PaymentProvider } from "../enum/payment.provider.js";
-import { Schema, model, Document, Types } from "mongoose";
+import { SaleStatus } from '../enum/sales.status.js';
+import { PaymentStatus } from '../enum/payment.status.js';
+import { PaymentProvider } from '../enum/payment.provider.js';
+import { Schema, model, Document, Types } from 'mongoose';
 
 
 export class SaleClass extends Document {

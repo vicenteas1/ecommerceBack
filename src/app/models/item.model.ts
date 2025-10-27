@@ -1,6 +1,6 @@
-import { Schema, model, Document, Types } from "mongoose";
-import { CategoryModel } from "./category.model.js";
-import { TypeModel } from "./type.model.js";
+import { Schema, model, Document, Types } from 'mongoose';
+import { CategoryModel } from './category.model.js';
+import { TypeModel } from './type.model.js';
 
 export class ItemClass extends Document {
   nombre!: string;

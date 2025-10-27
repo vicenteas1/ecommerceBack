@@ -1,12 +1,10 @@
-import { Router } from "express";
-import { body, param, query } from "express-validator";
-
-import { CategoryService } from "../services/impl/category.service.impl.js";
-import { CategoryController } from "../controller/category.controller.js";
-
-import { validateToken } from "../middleware/authorization.js";
-import { requireAdmin } from "../middleware/checkRole.js";
-import { validate } from "../middleware/validation.js";
+import { Router } from 'express';
+import { body, param, query } from 'express-validator';
+import { CategoryService } from '../services/impl/category.service.impl.js';
+import { CategoryController } from '../controller/category.controller.js';
+import { validateToken } from '../middleware/authorization.js';
+import { requireAdmin } from '../middleware/checkRole.js';
+import { validate } from '../middleware/validation.js';
 
 const router = Router();
 const controller = new CategoryController(new CategoryService());

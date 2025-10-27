@@ -1,11 +1,11 @@
-import { ApiResponse } from "../models/api-response.model.js";
+import { ApiResponse } from '../models/api-response.model.js';
 import {
   CreateItemDTO,
   ListItemsQuery,
   Paged,
   SafeItem,
   UpdateItemDTO,
-} from "../types/item.type.js";
+} from '../types/item.type.js';
 
 export interface ItemService {
   create(data: CreateItemDTO): Promise<ApiResponse<SafeItem | null>>;

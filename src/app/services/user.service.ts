@@ -1,6 +1,6 @@
 import { ApiResponse } from '../models/api-response.model.js';
 import { JwtPayloadUser } from '../interfaces/user.interface.js';
-import { LoginResult } from 'interfaces/login.interface.js';
+import { LoginResult } from '../interfaces/login.interface.js';
 import { CreateUserDTO, ListUsersQuery, LoginDTO, Paged, SafeUser, UpdateUserDTO } from '../types/user.type.js';
 
 

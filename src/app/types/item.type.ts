@@ -1,4 +1,4 @@
-import { ItemClass } from "../models/item.model.js";
+import { ItemClass } from '../models/item.model.js';
 
 export type SafeItem = Pick<
   ItemClass,
