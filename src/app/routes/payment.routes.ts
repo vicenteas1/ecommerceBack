@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { PaymentsController } from "../controller/payment.controller.js";
 import { PaymentServiceImpl } from "../services/impl/payment.service.impl.js";
-import { validateToken } from "middleware/authorization.js";
+import { validateToken } from "../middleware/authorization.js";
 
 const router = Router();
 const controller = new PaymentsController(new PaymentServiceImpl());
