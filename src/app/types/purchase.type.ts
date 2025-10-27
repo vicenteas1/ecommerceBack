@@ -2,7 +2,7 @@ import { PaymentProvider } from "../enum/payment.provider";
 import { PaymentStatus } from "../enum/payment.status";
 
 export type SafePurchaseItem = {
-  itemId: string;   // antes: productId
+  itemId: string;
   name: string;
   price: number;
   qty: number;
@@ -29,7 +29,7 @@ export type Paged<T> = {
 };
 
 export type CreatePurchaseItemDTO = {
-  itemId: string; // antes: productId
+  itemId: string;
   qty: number;
   price: number;
   name?: string;

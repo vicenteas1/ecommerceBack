@@ -47,7 +47,7 @@ export class PurchaseController {
       if (!req.user?.id) return res.status(HttpStatus.UNAUTHORIZED).json(ApiResponse.fail("No autenticado", HttpStatus.UNAUTHORIZED));
 
       const dto = matchedData(req, { locations: ["body"] }) as {
-        items: Array<{ productId: string; qty: number; price: number; name?: string }>;
+        items: Array<{ itemId: string; qty: number; price: number; name?: string }>;
         paymentProvider: PaymentProvider;
       };
 

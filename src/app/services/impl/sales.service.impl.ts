@@ -209,7 +209,7 @@ export class SaleServiceImpl implements SaleService {
 
   private toSafe(s: SaleClass): SafeSale {
     const items: SafeSaleItem[] = (s as any).items?.map((it: any) => ({
-      productId: it.productId?.toString?.() ?? String(it.productId),
+      itemId: it.itemId?.toString?.() ?? String(it.itemId),
       name: it.name,
       price: it.price,
       qty: it.qty,

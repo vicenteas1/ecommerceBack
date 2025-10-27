@@ -2,7 +2,7 @@ import { PaymentStatus } from "../enum/payment.status";
 import { SaleStatus } from "../enum/sales.status";
 
 export type SafeSaleItem = {
-  itemId: string; // antes: productId
+  itemId: string;
   name: string;
   price: number;
   qty: number;

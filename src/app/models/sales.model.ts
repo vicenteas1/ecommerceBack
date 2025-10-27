@@ -6,7 +6,7 @@ import { Schema, model, Document, Types } from "mongoose";
 
 export class SaleClass extends Document {
   userId!: Types.ObjectId;
-  items!: Array<{ productId: Types.ObjectId; name: string; price: number; qty: number }>;
+  items!: Array<{ itemId: Types.ObjectId; name: string; price: number; qty: number }>;
   subtotal!: number;
   taxes!: number;
   total!: number;
@@ -24,7 +24,7 @@ const saleSchema = new Schema<SaleClass>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     items: [
       {
-        productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+        itemId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
         name: { type: String, required: true },
         price: { type: Number, required: true, min: 0 },
         qty: { type: Number, required: true, min: 1 }

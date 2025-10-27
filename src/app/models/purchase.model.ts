@@ -4,7 +4,7 @@ import { PaymentProvider } from "../enum/payment.provider.js";
 
 export class PurchaseClass extends Document {
   userId!: Types.ObjectId;
-  items!: Array<{ productId: Types.ObjectId; name: string; price: number; qty: number }>;
+  items!: Array<{ itemId: Types.ObjectId; name: string; price: number; qty: number }>;
   subtotal!: number;
   total!: number;
   paymentStatus!: PaymentStatus;
@@ -18,7 +18,7 @@ const purchaseSchema = new Schema<PurchaseClass>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     items: [
       {
-        productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+        itemId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
         name: { type: String, required: true },
         price: { type: Number, required: true, min: 0 },
         qty: { type: Number, required: true, min: 1 }

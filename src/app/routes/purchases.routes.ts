@@ -41,7 +41,7 @@ router.post(
   validateToken,
   requireBuyer,
   body('items').isArray({ min: 1 }).withMessage('Debe incluir al menos un producto'),
-  body('items.*.productId').isMongoId().withMessage('productId inválido'),
+  body('items.*.itemId').isMongoId().withMessage('itemId inválido'),
   body('items.*.qty').isInt({ min: 1 }).withMessage('Cantidad mínima: 1'),
   body('items.*.price').isFloat({ min: 0 }).withMessage('Precio debe ser mayor o igual a 0'),
   body('paymentProvider')
