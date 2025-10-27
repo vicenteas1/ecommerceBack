@@ -19,7 +19,6 @@ export class UserServiceImpl implements UserService {
       const email = data.email?.toLowerCase().trim();
       const password = data.password;
       const role = data.role ?? 'buyer';
-      console.log("hola")
 
       if (!username || !email || !password) {
         return ApiResponse.fail('Faltan campos obligatorios (username, email, password)', HttpStatus.BAD_REQUEST);
@@ -31,7 +30,7 @@ export class UserServiceImpl implements UserService {
       const saved = await UserModel.create({
         username,
         email,
-        password: password,
+        password,
         role,
         createdBy: data.createdBy ?? 'system',
       });
@@ -121,7 +120,11 @@ export class UserServiceImpl implements UserService {
 
       if (Object.keys($set).length === 0) return ApiResponse.fail('Nada para actualizar', HttpStatus.BAD_REQUEST);
 
-      const updated = await UserModel.findByIdAndUpdate(id, { $set }, { new: true, runValidators: true });
+      const updated = await UserModel
+        .findByIdAndUpdate(id, { $set }, { new: true, runValidators: true })
+        .lean()
+        .exec();
+
       if (!updated) return ApiResponse.fail('Usuario no encontrado', HttpStatus.NOT_FOUND);
 
       return ApiResponse.ok<SafeUser>(this.toSafe(updated), HttpStatus.OK, 'Actualizado');
@@ -134,9 +137,9 @@ export class UserServiceImpl implements UserService {
   async getById(id: string): Promise<ApiResponse<SafeUser | null> | null> {
     try {
       if (!this.validateId(id)) return ApiResponse.fail('ID inválido', HttpStatus.BAD_REQUEST);
-      const user = await UserModel.findById(id).lean();
+      const user = await UserModel.findById(id).lean().exec();
       if (!user) return ApiResponse.fail('Usuario no encontrado', HttpStatus.NOT_FOUND);
-      return ApiResponse.ok<SafeUser>(this.toSafe(user as UserClass), HttpStatus.OK, 'OK');
+      return ApiResponse.ok<SafeUser>(this.toSafe(user), HttpStatus.OK, 'OK');
     } catch (err: any) {
       Logger.error(`UserService.getById error: ${err?.message ?? err}`);
       return ApiResponse.fail(err?.message ?? 'NOK', HttpStatus.INTERNAL_ERROR);
@@ -159,11 +162,11 @@ export class UserServiceImpl implements UserService {
       }
 
       const [itemsRaw, total] = await Promise.all([
-        UserModel.find(filter).sort({ fech_creacion: -1 }).skip(skip).limit(limit).lean(),
+        UserModel.find(filter).sort({ fech_creacion: -1 }).skip(skip).limit(limit).lean().exec(),
         UserModel.countDocuments(filter),
       ]);
 
-      const items: SafeUser[] = itemsRaw.map((u) => this.toSafe(u as UserClass));
+      const items: SafeUser[] = itemsRaw.map((u) => this.toSafe(u));
       return ApiResponse.ok<Paged<SafeUser>>({ items, total, page, limit }, HttpStatus.OK, 'OK');
     } catch (err: any) {
       Logger.error(`UserService.list error: ${err?.message ?? err}`);
@@ -219,14 +222,23 @@ export class UserServiceImpl implements UserService {
     return Types.ObjectId.isValid(id);
   }
 
-  private toSafe(u: UserClass): SafeUser {
+  private toSafe(u: any): SafeUser {
+    const id: string | undefined =
+      typeof u?.id === 'string'
+        ? u.id
+        : u?._id instanceof Types.ObjectId
+          ? u._id.toString()
+          : typeof u?._id === 'string'
+            ? u._id
+            : undefined;
+
     return {
-      id: (u as any).id ?? (u as any)._id?.toString(),
-      username: (u as any).username,
-      email: (u as any).email,
-      role: (u as any).role,
-      fech_creacion: (u as any).fech_creacion,
-      fech_modif: (u as any).fech_modif,
+      id,
+      username: u?.username,
+      email: u?.email,
+      role: u?.role,
+      fech_creacion: u?.fech_creacion,
+      fech_modif: u?.fech_modif,
     };
   }
 }
