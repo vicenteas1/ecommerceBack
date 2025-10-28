@@ -92,7 +92,7 @@ export class PaymentServiceImpl implements PaymentService {
           payer: data.payer || undefined,
           back_urls,
           auto_return: "approved",
-          binary_mode: false,
+          binary_mode: true,
           statement_descriptor: "PROSAAV",
           notification_url: baseUrl ? `${baseUrl}/api/payments/webhook` : undefined,
           external_reference,
