@@ -78,4 +78,15 @@ export class PaymentsController {
       return res.status(200).json({ ok: false, error: String(err) });
     }
   }
+
+  async confirm(req: Request, res: Response) {
+    Logger.info("PaymentsController.confirm :: iniciando");
+    try {
+      const response = await this.service.confirmFromReturn(req.query as any);
+      return res.status(response.code).json(response);
+    } catch (err) {
+      Logger.error("PaymentsController.confirm :: error", err);
+      return res.status(500).json({ message: "Error confirmando pago", error: String(err) });
+    }
+  }
 }

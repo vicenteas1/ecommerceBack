@@ -7,6 +7,8 @@ import { Logger } from "../../config/logger.js";
 import { ApiResponse } from "../../models/api-response.model.js";
 import { HttpStatus } from "../../enum/http.status.js";
 import { PaymentModel } from "../../models/payment.model.js";
+import { SaleModel } from "../../models/sales.model.js";
+import { PurchaseModel } from "../../models/purchase.model.js";
 
 import {
   CreatePreferenceDTO,
@@ -17,10 +19,7 @@ import {
 } from "../../interfaces/payment.interface.js";
 import { PaymentService } from "../payment.service.js";
 
-const { MP_ACCESS_TOKEN, FRONT_URL, BASE_URL } = process.env as Record<
-  string,
-  string
->;
+const { MP_ACCESS_TOKEN, FRONT_URL, BASE_URL } = process.env as Record<string, string>;
 
 const CURRENCY = "CLP";
 const toNumber = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
@@ -37,9 +36,7 @@ const baseUrl = ensureUrl(BASE_URL);
 
 const mpClient = new MercadoPagoConfig({
   accessToken: MP_ACCESS_TOKEN || "",
-  options: {
-    timeout: 10000,
-  },
+  options: { timeout: 10000 },
 });
 
 export class PaymentServiceImpl implements PaymentService {
@@ -50,26 +47,17 @@ export class PaymentServiceImpl implements PaymentService {
       }
 
       if (!data.createdBy || !Types.ObjectId.isValid(String(data.createdBy))) {
-        return ApiResponse.fail(
-          "Usuario no autenticado",
-          HttpStatus.UNAUTHORIZED
-        );
+        return ApiResponse.fail("Usuario no autenticado", HttpStatus.UNAUTHORIZED);
       }
 
       if (!frontUrl) {
         Logger.error("[MP] FRONT_URL inválida o no definida");
-        return ApiResponse.fail(
-          "Config inválida: FRONT_URL no definida o inválida (debe incluir http/https)",
-          HttpStatus.INTERNAL_ERROR
-        );
+        return ApiResponse.fail("Config inválida: FRONT_URL no definida o inválida (debe incluir http/https)", HttpStatus.INTERNAL_ERROR);
       }
 
       if (!MP_ACCESS_TOKEN) {
         Logger.error("[MP] MP_ACCESS_TOKEN no definido");
-        return ApiResponse.fail(
-          "Config inválida: MP_ACCESS_TOKEN no definido",
-          HttpStatus.INTERNAL_ERROR
-        );
+        return ApiResponse.fail("Config inválida: MP_ACCESS_TOKEN no definido", HttpStatus.INTERNAL_ERROR);
       }
 
       const items = data.items.map((it) => ({
@@ -80,10 +68,7 @@ export class PaymentServiceImpl implements PaymentService {
         currency_id: it.currency_id || CURRENCY,
       }));
 
-      const amount = items.reduce(
-        (acc, it) => acc + it.unit_price * it.quantity,
-        0
-      );
+      const amount = items.reduce((acc, it) => acc + it.unit_price * it.quantity, 0);
 
       const back_urls = {
         success: `${frontUrl}/checkout/success`,
@@ -109,17 +94,20 @@ export class PaymentServiceImpl implements PaymentService {
           auto_return: "approved",
           binary_mode: false,
           statement_descriptor: "PROSAAV",
-          notification_url: baseUrl
-            ? `${baseUrl}/api/payments/webhook`
-            : undefined,
+          notification_url: baseUrl ? `${baseUrl}/api/payments/webhook` : undefined,
           external_reference,
-          metadata: {
-            createdBy: String(data.createdBy),
-          },
+          metadata: { createdBy: String(data.createdBy) },
+          additional_info: JSON.stringify({
+            items: items.map(it => ({
+              id: it.id,
+              title: it.title,
+              quantity: it.quantity,
+              unit_price: it.unit_price,
+              currency_id: it.currency_id,
+            })),
+          }),
         },
       });
-
-      Logger.info(resp);
 
       const prefId =
         (resp as any)?.id ??
@@ -134,12 +122,10 @@ export class PaymentServiceImpl implements PaymentService {
 
       if (!prefId || !initPoint) {
         Logger.error("[MP] No retornó id o init_point", resp);
-        return ApiResponse.fail(
-          "No se pudo crear la preferencia",
-          HttpStatus.INTERNAL_ERROR
-        );
+        return ApiResponse.fail("No se pudo crear la preferencia", HttpStatus.INTERNAL_ERROR);
       }
 
+      const now = new Date();
       const saved = await PaymentModel.create({
         items,
         amount,
@@ -150,6 +136,8 @@ export class PaymentServiceImpl implements PaymentService {
         external_reference,
         createdBy: new Types.ObjectId(data.createdBy),
         updatedBy: new Types.ObjectId(data.createdBy),
+        fech_creacion: now,
+        fech_modif: now,
       });
 
       return ApiResponse.ok(
@@ -209,8 +197,7 @@ export class PaymentServiceImpl implements PaymentService {
         .populate({ path: "user", select: "username email" })
         .lean();
 
-      if (!doc)
-        return ApiResponse.fail("Pago no encontrado", HttpStatus.NOT_FOUND, null);
+      if (!doc) return ApiResponse.fail("Pago no encontrado", HttpStatus.NOT_FOUND, null);
       return ApiResponse.ok(doc, HttpStatus.OK, "OK");
     } catch (error) {
       Logger.error("PaymentServiceImpl.getById :: error", error);
@@ -239,12 +226,27 @@ export class PaymentServiceImpl implements PaymentService {
         new: true,
       }).populate({ path: "user", select: "username email" });
 
-      if (!updated)
-        return ApiResponse.fail("Pago no encontrado", HttpStatus.NOT_FOUND, null);
+      if (!updated) return ApiResponse.fail("Pago no encontrado", HttpStatus.NOT_FOUND, null);
       return ApiResponse.ok(updated, HttpStatus.OK, "Pago actualizado");
     } catch (error) {
       Logger.error("PaymentServiceImpl.updateById :: error", error);
       throw error;
+    }
+  }
+
+  async confirmFromReturn(query: { payment_id?: string; preference_id?: string; status?: string }) {
+    try {
+      const paymentId = String(query?.payment_id || "");
+      if (!paymentId) {
+        return ApiResponse.fail("payment_id requerido", HttpStatus.BAD_REQUEST);
+      }
+      const paymentClient = new Payment(mpClient);
+      const mp = await paymentClient.get({ id: paymentId });
+      const resp = await this.persistFromMp(mp);
+      return ApiResponse.ok(resp, HttpStatus.OK, "Confirmado");
+    } catch (error) {
+      Logger.error("PaymentServiceImpl.confirmFromReturn :: error", error);
+      return ApiResponse.fail("Error confirmando pago", HttpStatus.INTERNAL_ERROR);
     }
   }
 
@@ -256,9 +258,7 @@ export class PaymentServiceImpl implements PaymentService {
         (body as any)?.data?.id ||
         (body as any)?.id;
 
-      Logger.info(
-        `PaymentServiceImpl.processWebhook :: topic=${topic} paymentId=${paymentId}`
-      );
+      Logger.info(`PaymentServiceImpl.processWebhook :: topic=${topic} paymentId=${paymentId}`);
 
       if (!paymentId) {
         return ApiResponse.ok({ received: true }, HttpStatus.OK, "Sin paymentId");
@@ -267,51 +267,82 @@ export class PaymentServiceImpl implements PaymentService {
       const paymentClient = new Payment(mpClient);
       const mp = await paymentClient.get({ id: paymentId });
 
-      const prefId =
-        (mp as any)?.preference_id ||
-        (mp as any)?.order?.id ||
-        (mp as any)?.metadata?.preference_id;
-
-      if (!prefId) {
-        return ApiResponse.ok(
-          { received: true },
-          HttpStatus.OK,
-          "Sin preference_id"
-        );
-      }
-
-      const updated = await PaymentModel.findOneAndUpdate(
-        { preferenceId: String(prefId) },
-        {
-          paymentId: String((mp as any).id),
-          status: String((mp as any).status),
-          payerEmail: (mp as any)?.payer?.email || undefined,
-          updatedBy: "system",
-        },
-        { new: true }
-      );
-
-      if (!updated) {
-        Logger.warn(`[MP] Payment no encontrado para preferenceId=${prefId}`);
-        return ApiResponse.ok(
-          { received: true },
-          HttpStatus.OK,
-          "Payment no encontrado"
-        );
-      }
-
-      return ApiResponse.ok(
-        { received: true, payment: updated },
-        HttpStatus.OK,
-        "OK"
-      );
+      const resp = await this.persistFromMp(mp);
+      // resp ya NO trae 'received'
+      return ApiResponse.ok({ received: true, ...resp }, HttpStatus.OK, "OK");
     } catch (error) {
       Logger.error("PaymentServiceImpl.processWebhook :: error", error);
-      return ApiResponse.ok(
-        { received: true },
-        HttpStatus.OK,
-        "Error procesando webhook"
+      return ApiResponse.ok({ received: true }, HttpStatus.OK, "Error procesando webhook");
+    }
+  }
+
+  private async persistFromMp(mp: any) {
+    const prefId =
+      (mp as any)?.preference_id ||
+      (mp as any)?.order?.id ||
+      (mp as any)?.metadata?.preference_id;
+
+    if (!prefId) {
+      return { message: "Sin preference_id" };
+    }
+
+    const status = String((mp as any).status || "");
+    const payerEmail = (mp as any)?.payer?.email || undefined;
+
+    const updated = await PaymentModel.findOneAndUpdate(
+      { preferenceId: String(prefId) },
+      {
+        paymentId: String((mp as any).id),
+        status,
+        payerEmail,
+        fech_modif: new Date(),
+        updatedBy: "system",
+      },
+      { new: true }
+    ).lean();
+
+    if (!updated) {
+      return { message: "Payment no encontrado" };
+    }
+
+    if (status === "approved") {
+      const { items, amount, currency_id, createdBy } = updated as any;
+
+      await SaleModel.findOneAndUpdate(
+        { preferenceId: String(prefId) },
+        {
+          $setOnInsert: {
+            preferenceId: String(prefId),
+            items,
+            total: amount,
+            currency_id,
+            customerEmail: payerEmail,
+            createdBy: createdBy ?? "SYSTEM",
+            fech_creacion: new Date(),
+          },
+          $set: { fech_modif: new Date() },
+        },
+        { new: true, upsert: true }
+      );
+
+      await PurchaseModel.findOneAndUpdate(
+        { preferenceId: String(prefId) },
+        {
+          $setOnInsert: {
+            preferenceId: String(prefId),
+            items,
+            total: amount,
+            currency_id,
+            customerEmail: payerEmail,
+            createdBy: createdBy ?? "SYSTEM",
+            fech_creacion: new Date(),
+          },
+          $set: { fech_modif: new Date() },
+        },
+        { new: true, upsert: true }
       );
     }
+
+    return { payment: updated, status };
   }
 }

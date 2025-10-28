@@ -11,5 +11,6 @@ router.get("/", controller.findAll.bind(controller));
 router.get("/:id", controller.findById.bind(controller));
 router.patch("/:id", controller.update.bind(controller));
 router.post("/webhook", controller.webhook.bind(controller));
+router.get("/confirm", controller.confirm.bind(controller));
 
 export default router;

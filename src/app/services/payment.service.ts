@@ -6,4 +6,5 @@ export interface PaymentService {
   getById(id: string): Promise<any>;
   updateById(id: string, data: UpdatePaymentDTO): Promise<any>;
   processWebhook(body: IWebhookPayload, query?: IWebhookQuery): Promise<any>;
+  confirmFromReturn(query: { payment_id?: string; preference_id?: string; status?: string }): Promise<any>;
 }
