@@ -1,24 +1,29 @@
-import 'dotenv/config';
-import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
-import { Types } from 'mongoose';
-import { Logger } from '../../config/logger.js';
-import { ApiResponse } from '../../models/api-response.model.js';
-import { HttpStatus } from '../../enum/http.status.js';
-import { PaymentModel } from '../../models/payment.model.js';
+import "dotenv/config";
+import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
+import { Types } from "mongoose";
+import { randomUUID } from "crypto";
+
+import { Logger } from "../../config/logger.js";
+import { ApiResponse } from "../../models/api-response.model.js";
+import { HttpStatus } from "../../enum/http.status.js";
+import { PaymentModel } from "../../models/payment.model.js";
+
 import {
   CreatePreferenceDTO,
   IWebhookPayload,
   IWebhookQuery,
   ListPaymentsFilter,
   UpdatePaymentDTO,
-} from '../../interfaces/payment.interface.js';
-import { randomUUID } from 'crypto';
-import { PaymentService } from '../payment.service.js';
+} from "../../interfaces/payment.interface.js";
+import { PaymentService } from "../payment.service.js";
 
-const { MP_ACCESS_TOKEN, FRONT_URL, BASE_URL } = process.env as Record<string, string>;
+const { MP_ACCESS_TOKEN, FRONT_URL, BASE_URL } = process.env as Record<
+  string,
+  string
+>;
 
 const CURRENCY = "CLP";
-const toNumber = (v: any) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+const toNumber = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
 
 const ensureUrl = (u?: string | null) => {
   if (!u || typeof u !== "string") return null;
@@ -27,8 +32,14 @@ const ensureUrl = (u?: string | null) => {
   return trimmed;
 };
 
+const frontUrl = ensureUrl(FRONT_URL);
+const baseUrl = ensureUrl(BASE_URL);
+
 const mpClient = new MercadoPagoConfig({
   accessToken: MP_ACCESS_TOKEN || "",
+  options: {
+    timeout: 10000,
+  },
 });
 
 export class PaymentServiceImpl implements PaymentService {
@@ -39,14 +50,14 @@ export class PaymentServiceImpl implements PaymentService {
       }
 
       if (!data.createdBy || !Types.ObjectId.isValid(String(data.createdBy))) {
-        return ApiResponse.fail("Usuario no autenticado", HttpStatus.UNAUTHORIZED);
+        return ApiResponse.fail(
+          "Usuario no autenticado",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
-      const front = ensureUrl(FRONT_URL);
-      const base = ensureUrl(BASE_URL);
-
-      if (!front) {
-        Logger.error("FRONT_URL inválida o no definida");
+      if (!frontUrl) {
+        Logger.error("[MP] FRONT_URL inválida o no definida");
         return ApiResponse.fail(
           "Config inválida: FRONT_URL no definida o inválida (debe incluir http/https)",
           HttpStatus.INTERNAL_ERROR
@@ -54,8 +65,11 @@ export class PaymentServiceImpl implements PaymentService {
       }
 
       if (!MP_ACCESS_TOKEN) {
-        Logger.error("MP_ACCESS_TOKEN no definido");
-        return ApiResponse.fail("Config inválida: MP_ACCESS_TOKEN no definido", HttpStatus.INTERNAL_ERROR);
+        Logger.error("[MP] MP_ACCESS_TOKEN no definido");
+        return ApiResponse.fail(
+          "Config inválida: MP_ACCESS_TOKEN no definido",
+          HttpStatus.INTERNAL_ERROR
+        );
       }
 
       const items = data.items.map((it) => ({
@@ -66,44 +80,64 @@ export class PaymentServiceImpl implements PaymentService {
         currency_id: it.currency_id || CURRENCY,
       }));
 
-      const amount = items.reduce((acc, it) => acc + it.unit_price * it.quantity, 0);
+      const amount = items.reduce(
+        (acc, it) => acc + it.unit_price * it.quantity,
+        0
+      );
 
-      const backUrls = {
-        success: `${front}/checkout/success`,
-        failure: `${front}/checkout/failure`,
-        pending: `${front}/checkout/pending`,
+      const back_urls = {
+        success: `${frontUrl}/checkout/success`,
+        failure: `${frontUrl}/checkout/failure`,
+        pending: `${frontUrl}/checkout/pending`,
       };
-
-      if (!/^https?:\/\//i.test(backUrls.success)) {
-        Logger.error("back_urls.success inválida:", backUrls.success);
-        return ApiResponse.fail("Config inválida: back_urls.success inválida", HttpStatus.INTERNAL_ERROR);
-      }
 
       const prefClient = new Preference(mpClient);
 
-      Logger.info("MP Preference.create :: back_urls=%j notification_url=%s", backUrls, base ? `${base}/api/payments/webhook` : "undefined");
+      Logger.info(
+        "[MP] Preference.create back_urls=%j notification_url=%s",
+        back_urls,
+        baseUrl ? `${baseUrl}/api/payments/webhook` : "undefined"
+      );
+
+      const external_reference = randomUUID();
 
       const resp = await prefClient.create({
         body: {
           items,
           payer: data.payer || undefined,
-          back_urls: backUrls,
+          back_urls,
           auto_return: "approved",
-          statement_descriptor: "PROSAAV",
           binary_mode: false,
-          notification_url: base ? `${base}/api/payments/webhook` : undefined,
+          statement_descriptor: "PROSAAV",
+          notification_url: baseUrl
+            ? `${baseUrl}/api/payments/webhook`
+            : undefined,
+          external_reference,
+          metadata: {
+            createdBy: String(data.createdBy),
+          },
         },
       });
 
-      const prefId = (resp as any)?.id ?? (resp as any)?.body?.id;
+      Logger.info(resp);
+
+      const prefId =
+        (resp as any)?.id ??
+        (resp as any)?.body?.id ??
+        (resp as any)?.response?.id;
+
       const initPoint =
         (resp as any)?.sandbox_init_point ??
         (resp as any)?.init_point ??
-        (resp as any)?.body?.init_point;
+        (resp as any)?.body?.init_point ??
+        (resp as any)?.response?.init_point;
 
       if (!prefId || !initPoint) {
-        Logger.error("Mercado Pago no retornó id o init_point", resp);
-        return ApiResponse.fail("No se pudo crear la preferencia", HttpStatus.INTERNAL_ERROR);
+        Logger.error("[MP] No retornó id o init_point", resp);
+        return ApiResponse.fail(
+          "No se pudo crear la preferencia",
+          HttpStatus.INTERNAL_ERROR
+        );
       }
 
       const saved = await PaymentModel.create({
@@ -113,12 +147,17 @@ export class PaymentServiceImpl implements PaymentService {
         preferenceId: String(prefId),
         status: "pending",
         payerEmail: data.payer?.email,
+        external_reference,
         createdBy: new Types.ObjectId(data.createdBy),
         updatedBy: new Types.ObjectId(data.createdBy),
       });
 
       return ApiResponse.ok(
-        { id: String(prefId), init_point: initPoint, payment: saved.toJSON() },
+        {
+          id: String(prefId),
+          init_point: String(initPoint),
+          payment: saved.toJSON(),
+        },
         HttpStatus.CREATED,
         "Preferencia creada"
       );
@@ -170,7 +209,8 @@ export class PaymentServiceImpl implements PaymentService {
         .populate({ path: "user", select: "username email" })
         .lean();
 
-      if (!doc) return ApiResponse.fail("Pago no encontrado", HttpStatus.NOT_FOUND, null);
+      if (!doc)
+        return ApiResponse.fail("Pago no encontrado", HttpStatus.NOT_FOUND, null);
       return ApiResponse.ok(doc, HttpStatus.OK, "OK");
     } catch (error) {
       Logger.error("PaymentServiceImpl.getById :: error", error);
@@ -195,10 +235,12 @@ export class PaymentServiceImpl implements PaymentService {
         }));
       }
 
-      const updated = await PaymentModel.findByIdAndUpdate(id, payload, { new: true })
-        .populate({ path: "user", select: "username email" });
+      const updated = await PaymentModel.findByIdAndUpdate(id, payload, {
+        new: true,
+      }).populate({ path: "user", select: "username email" });
 
-      if (!updated) return ApiResponse.fail("Pago no encontrado", HttpStatus.NOT_FOUND, null);
+      if (!updated)
+        return ApiResponse.fail("Pago no encontrado", HttpStatus.NOT_FOUND, null);
       return ApiResponse.ok(updated, HttpStatus.OK, "Pago actualizado");
     } catch (error) {
       Logger.error("PaymentServiceImpl.updateById :: error", error);
@@ -208,10 +250,10 @@ export class PaymentServiceImpl implements PaymentService {
 
   async processWebhook(body: IWebhookPayload, query?: IWebhookQuery) {
     try {
-      const topic = query?.topic || query?.type || body?.type;
+      const topic = query?.topic || query?.type || (body as any)?.type;
       const paymentId =
         (query && (query["data.id"] as string)) ||
-        body?.data?.id ||
+        (body as any)?.data?.id ||
         (body as any)?.id;
 
       Logger.info(
@@ -231,7 +273,11 @@ export class PaymentServiceImpl implements PaymentService {
         (mp as any)?.metadata?.preference_id;
 
       if (!prefId) {
-        return ApiResponse.ok({ received: true }, HttpStatus.OK, "Sin preference_id");
+        return ApiResponse.ok(
+          { received: true },
+          HttpStatus.OK,
+          "Sin preference_id"
+        );
       }
 
       const updated = await PaymentModel.findOneAndUpdate(
@@ -246,14 +292,26 @@ export class PaymentServiceImpl implements PaymentService {
       );
 
       if (!updated) {
-        Logger.warn(`Payment no encontrado para preferenceId=${prefId}`);
-        return ApiResponse.ok({ received: true }, HttpStatus.OK, "Payment no encontrado");
+        Logger.warn(`[MP] Payment no encontrado para preferenceId=${prefId}`);
+        return ApiResponse.ok(
+          { received: true },
+          HttpStatus.OK,
+          "Payment no encontrado"
+        );
       }
 
-      return ApiResponse.ok({ received: true, payment: updated }, HttpStatus.OK, "OK");
+      return ApiResponse.ok(
+        { received: true, payment: updated },
+        HttpStatus.OK,
+        "OK"
+      );
     } catch (error) {
       Logger.error("PaymentServiceImpl.processWebhook :: error", error);
-      return ApiResponse.ok({ received: true }, HttpStatus.OK, "Error procesando webhook");
+      return ApiResponse.ok(
+        { received: true },
+        HttpStatus.OK,
+        "Error procesando webhook"
+      );
     }
   }
 }
